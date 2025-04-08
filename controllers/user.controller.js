@@ -6,10 +6,9 @@ import { Request } from "../models/request.model.js";
 import { Chat } from "../models/chat.model.js";
 import emitEvent from "../utils/Emit.js";
 import { NEW_FRIEND_REQUEST, NEW_FRIEND_REQUEST_ACCEPTED, NEW_FRIEND_REQUEST_REJECTED, REFETCH_CHATS } from "../constants.js";
-import client, { verifyGoogleToken } from "../utils/googleClient.js";
+import  { verifyGoogleToken } from "../utils/googleClient.js";
 import crypto from 'crypto';
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
-import { Console } from "console";
 
 
 export const registerUser = catchAsync(async (req, res, next) => {
