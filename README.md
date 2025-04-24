@@ -24,9 +24,8 @@ WhisperWire is a modern chat application backend that provides real-time messagi
   - Message read receipts
   - Typing indicators
 - **Media Support**:
-  - File/image uploads
-  - Avatar customization
-  - Group icons
+  - File/image uploads (avatars, group icons, message attachments)
+  - Direct Cloudinary uploads via signed parameters
 - **Security**:
   - Password hashing with bcrypt
   - JWT authentication
@@ -48,7 +47,7 @@ WhisperWire is a modern chat application backend that provides real-time messagi
 
 ### Authentication
 
-- `POST /api/v1/user/signup` - Register a new user
+- `POST /api/v1/user/signup` - Register a new user (with avatar upload)
 - `POST /api/v1/user/signin` - Log in a user
 - `POST /api/v1/user/google-auth` - Authenticate with Google
 - `POST /api/v1/user/signout` - Sign out a user
@@ -57,7 +56,7 @@ WhisperWire is a modern chat application backend that provides real-time messagi
 
 - `GET /api/v1/user/profile` - Get current user profile
 - `GET /api/v1/user/profile/:id` - Get specific user profile
-- `PUT /api/v1/user/update` - Update user profile
+- `PUT /api/v1/user/update` - Update user profile (with avatar upload)
 - `GET /api/v1/user/search` - Search for users
 
 ### Friend Management
@@ -70,7 +69,7 @@ WhisperWire is a modern chat application backend that provides real-time messagi
 
 ### Chat Management
 
-- `POST /api/v1/chat/new` - Create new group chat
+- `POST /api/v1/chat/new` - Create new group chat (with group icon upload)
 - `GET /api/v1/chat/getChat` - Get all user chats
 - `GET /api/v1/chat/getGroup` - Get all user groups
 - `GET /api/v1/chat/:id` - Get chat details
@@ -85,13 +84,20 @@ WhisperWire is a modern chat application backend that provides real-time messagi
 
 ### Messaging
 
-- `POST /api/v1/chat/message` - Send message with attachments
-- `POST /api/v1/chat/direct-message` - Send direct message
+- `POST /api/v1/chat/message` - Send message with attachments (file upload via Multer)
+- `POST /api/v1/chat/direct-message` - Send direct message (attachments as Cloudinary URLs)
 - `GET /api/v1/chat/message/:id` - Get chat messages
 
-### File Upload
+### File Upload & Cloudinary Integration
 
-- `POST /api/v1/upload` - Upload files
+- `POST /api/v1/upload/get-signed-params` - Get signed parameters for direct client-side Cloudinary uploads (requires authentication)
+
+#### Notes on File Uploads
+- **Avatars and group icons** are uploaded as part of user and chat endpoints using Multer.
+- **Message attachments** are uploaded via `/api/v1/chat/message` (Multer, server upload) or `/api/v1/chat/direct-message` (client uploads to Cloudinary, then sends URLs).
+- **Direct Cloudinary uploads**: Use `/api/v1/upload/get-signed-params` to get signed params for secure client-side uploads.
+- **Max file size**: 10MB per file, up to 5 files per message.
+- **Allowed file types**: Images (jpeg, png, gif, webp), audio (mp3, wav, ogg), video (mp4, webm, mov), PDF, text, and common Office docs.
 
 ## Socket.IO Events
 
@@ -117,8 +123,7 @@ WhisperWire is a modern chat application backend that provides real-time messagi
 ### Chat Model
 - Chat type: one-to-one or group chats
 - Group metadata: name, icon (for group chats)
-- Participants: members list, creator, admins (for groups)
-- Message tracking: reference to latest message
+- Participants: members list, creator
 - Timestamps: creation and update dates
 
 ### Message Model
@@ -129,7 +134,7 @@ WhisperWire is a modern chat application backend that provides real-time messagi
 
 ### Request Model
 - Participants: sender and recipient
-- Classification: request type (friend, group invite)
+- Classification: request type (friend)
 - Status tracking: pending, accepted, rejected
 - Timestamps: creation and update dates
 
@@ -150,11 +155,16 @@ WhisperWire is a modern chat application backend that provides real-time messagi
    ```
    NODE_ENV=development
    PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
+   MONGO_URI=your_mongodb_connection_string
+   DB_NAME=chat-app
    JWT_SECRET=your_jwt_secret
-   JWT_EXPIRE=7d
+   JWT_EXPIRY=15d
+   JWT_AUDIENCE=chat-app-users
+   JWT_ISSUER=chat-app
    BCRYPT_SALT_ROUNDS=10
    GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   CLIENT_URL=http://localhost:5173
    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
    CLOUDINARY_API_KEY=your_cloudinary_api_key
    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
