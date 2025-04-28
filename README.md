@@ -2,6 +2,8 @@
 
 A real-time messaging application backend built with Node.js, Express, MongoDB, and Socket.IO.
 
+> **Note**: The frontend code for this application can be found in the [WhisperWire Frontend Repository](https://github.com/Garvit-Adlakha/WhisperWire-frontend).
+
 ## Overview
 
 WhisperWire is a modern chat application backend that provides real-time messaging functionality, user authentication, friend management, and group chat capabilities. It leverages Socket.IO for real-time communication and MongoDB for data persistence.
